@@ -26,6 +26,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class DisplayConsumer implements IRecordProcessor {
 
+	private static final boolean IF_TIME_FIELD_ENABLED = Boolean.parseBoolean(System.getProperty("if.time.field.enabled", "false"));
+	private static final String TIME_FIELD_NAME = System.getProperty("time.field.name", "time");
+	private static final String TIME_FIELD_FORMAT = System.getProperty("time.field.format", "yyyy-MM-dd'T'HH:mm:ss.SSSxxxxx");
+
 	private static final Log LOG = LogFactory.getLog(DisplayConsumer.class);
 	private String shardId;
 
@@ -38,7 +42,7 @@ public class DisplayConsumer implements IRecordProcessor {
 	private long nextCheckpointTimeInMillis;
 
 	private final CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder();
-	private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSxxxxx");
+	private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern(TIME_FIELD_FORMAT);
 	private final ObjectMapper mapper = new ObjectMapper();
 
 	/**
@@ -154,22 +158,26 @@ public class DisplayConsumer implements IRecordProcessor {
 	 *            The record to be processed.
 	 */
 	private void processSingleRecord(Record record) {
-		// * Add your own record processing logic here *
-
 		String data = null;
 		try {
 			// For this app, we interpret the payload as UTF-8 chars.
 			data = decoder.decode(record.getData()).toString();
+
 			// Assume this record including time field and log its age.
 			JsonNode jsonData = mapper.readTree(data);
-			long recordCreateTime = ZonedDateTime.parse(jsonData.get("time").asText(), dtf).toInstant().toEpochMilli();
 			long approximateArrivalTimestamp = record.getApproximateArrivalTimestamp().getTime();
 			long currentTime = System.currentTimeMillis();
-			long ageOfRecordInMillis = currentTime - recordCreateTime;
 			long ageOfRecordInMillisFromArrival = currentTime - approximateArrivalTimestamp;
-
-			System.out.println("---\nShard: " + shardId + ", PartitionKey: " + record.getPartitionKey() + ", SequenceNumber: " + record.getSequenceNumber()
-					+ "\nCreated " + ageOfRecordInMillis + " milliseconds ago. Arrived " + ageOfRecordInMillisFromArrival + " milliseconds ago.\n" + data);
+			if (IF_TIME_FIELD_ENABLED) {
+				long recordCreateTime = ZonedDateTime.parse(jsonData.get(TIME_FIELD_NAME).asText(), dtf).toInstant().toEpochMilli();
+				long ageOfRecordInMillis = currentTime - recordCreateTime;
+				System.out.println("---\nShard: " + shardId + ", PartitionKey: " + record.getPartitionKey() + ", SequenceNumber: "
+						+ record.getSequenceNumber() + "\nCreated " + ageOfRecordInMillis + " milliseconds ago. Arrived "
+						+ ageOfRecordInMillisFromArrival + " milliseconds ago.\n" + data);
+			} else {
+				System.out.println("---\nShard: " + shardId + ", PartitionKey: " + record.getPartitionKey() + ", SequenceNumber: "
+						+ record.getSequenceNumber() + "\nArrived " + ageOfRecordInMillisFromArrival + " milliseconds ago.\n" + data);
+			}
 		} catch (CharacterCodingException e) {
 			LOG.error("Malformed data: " + data, e);
 		} catch (IOException e) {
