@@ -18,8 +18,8 @@ import com.example.aws.Util;
  */
 public final class DisplayConsumerApplication {
 
-	private static final String APPLICATION_NAME = System.getProperty("app.name", "access-log-stream-display-consumer-application");
-	private static final String STREAM_NAME = System.getProperty("stream.name", "access-log-stream");
+	private static final String APPLICATION_NAME = System.getProperty("app.name", "tokyo-stream-1-display-consumer-application");
+	private static final String STREAM_NAME = System.getProperty("stream.name", "tokyo-stream-1");
 	private static final String REGION = System.getProperty("region", "ap-northeast-1");
 
 	// Initial position in the stream when the application starts up for the first time.
