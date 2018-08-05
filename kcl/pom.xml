@@ -12,9 +12,9 @@
 		<maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
 
 		<java.version>1.8</java.version>
-		<aws-java-sdk.version>1.11.255</aws-java-sdk.version>
-		<amazon-kinesis-client.version>1.8.8</amazon-kinesis-client.version>
-		<dynamodb-streams-kinesis-adapter.version>1.2.2</dynamodb-streams-kinesis-adapter.version>
+		<aws-java-sdk.version>1.11.380</aws-java-sdk.version>
+		<amazon-kinesis-client.version>1.9.1</amazon-kinesis-client.version>
+		<dynamodb-streams-kinesis-adapter.version>1.4.0</dynamodb-streams-kinesis-adapter.version>
 	</properties>
 
 	<build>

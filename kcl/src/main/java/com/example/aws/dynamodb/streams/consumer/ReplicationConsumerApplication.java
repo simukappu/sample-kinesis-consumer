@@ -24,7 +24,8 @@ import com.example.aws.Util;
  */
 public final class ReplicationConsumerApplication {
 
-	private static final String APPLICATION_NAME = System.getProperty("app.name", "access-log-dynamodbstreams-replication-consumer-application");
+	private static final String APPLICATION_NAME = System.getProperty("app.name",
+			"access-log-dynamodbstreams-replication-consumer-application");
 	private static final String SRC_TABLE_NAME = System.getProperty("source.table.name", "access-log");
 	private static final String DEST_TABLE_NAME = System.getProperty("dest.table.name", "access-log-replica");
 	private static final String REGION = System.getProperty("region", "ap-northeast-1");
@@ -38,19 +39,22 @@ public final class ReplicationConsumerApplication {
 		AWSCredentialsProvider credentialsProvider = Util.initCredentialsProvider();
 
 		// * Original code for DynamoDB Streams * //
-		AmazonDynamoDBStreamsAdapterClient adapterClient = new AmazonDynamoDBStreamsAdapterClient(credentialsProvider, new ClientConfiguration());
+		AmazonDynamoDBStreamsAdapterClient adapterClient = new AmazonDynamoDBStreamsAdapterClient(credentialsProvider,
+				new ClientConfiguration());
 		adapterClient.setRegion(Region.getRegion(Regions.fromName(REGION)));
 		AmazonDynamoDB dynamoDBClient = AmazonDynamoDBClientBuilder.standard().withRegion(REGION).build();
 		String streamArn = dynamoDBClient.describeTable(SRC_TABLE_NAME).getTable().getLatestStreamArn();
 
 		// Set KCL configuration
 		String workerId = InetAddress.getLocalHost().getCanonicalHostName() + ":" + UUID.randomUUID();
-		KinesisClientLibConfiguration kclConfiguration = new KinesisClientLibConfiguration(APPLICATION_NAME, streamArn, credentialsProvider, workerId);
+		KinesisClientLibConfiguration kclConfiguration = new KinesisClientLibConfiguration(APPLICATION_NAME, streamArn, credentialsProvider,
+				workerId);
 		kclConfiguration.withInitialPositionInStream(INITIAL_POSITION_IN_STREAM);
 
 		// Start workers
 		IRecordProcessorFactory recordProcessorFactory = new ReplicationConsumerFactory(DEST_TABLE_NAME);
 		AmazonCloudWatch cloudWatchClient = AmazonCloudWatchClientBuilder.standard().withRegion(REGION).build();
+		@SuppressWarnings("deprecation")
 		Worker worker = new Worker(recordProcessorFactory, kclConfiguration, adapterClient, dynamoDBClient, cloudWatchClient);
 		try {
 			System.out.printf("Running %s to process stream %s as worker %s...\n", APPLICATION_NAME, streamArn, workerId);

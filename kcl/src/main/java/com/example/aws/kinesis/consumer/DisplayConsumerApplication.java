@@ -18,8 +18,8 @@ import com.example.aws.Util;
  */
 public final class DisplayConsumerApplication {
 
-	private static final String APPLICATION_NAME = System.getProperty("app.name", "access-log-stream-display-consumer-application");
-	private static final String STREAM_NAME = System.getProperty("stream.name", "access-log-stream");
+	private static final String APPLICATION_NAME = System.getProperty("app.name", "tokyo-stream-1-display-consumer-application");
+	private static final String STREAM_NAME = System.getProperty("stream.name", "tokyo-stream-1");
 	private static final String REGION = System.getProperty("region", "ap-northeast-1");
 
 	// Initial position in the stream when the application starts up for the first time.
@@ -38,14 +38,16 @@ public final class DisplayConsumerApplication {
 
 		// Set KCL configuration
 		String workerId = InetAddress.getLocalHost().getCanonicalHostName() + ":" + UUID.randomUUID();
-		KinesisClientLibConfiguration kclConfiguration = new KinesisClientLibConfiguration(APPLICATION_NAME, STREAM_NAME, credentialsProvider, workerId);
+		KinesisClientLibConfiguration kclConfiguration = new KinesisClientLibConfiguration(APPLICATION_NAME, STREAM_NAME,
+				credentialsProvider, workerId);
 		kclConfiguration.withRegionName(REGION);
 		kclConfiguration.withInitialPositionInStream(INITIAL_POSITION_IN_STREAM);
 
 		// Start workers
 		IRecordProcessorFactory recordProcessorFactory = new DisplayConsumerFactory();
 		IMetricsFactory metricsFactory = new NullMetricsFactory();
-		Worker worker = new Worker(recordProcessorFactory, kclConfiguration, metricsFactory);
+		Worker worker = new Worker.Builder().recordProcessorFactory(recordProcessorFactory).config(kclConfiguration)
+				.metricsFactory(metricsFactory).build();
 		try {
 			System.out.printf("Running %s to process stream %s as worker %s...\n", APPLICATION_NAME, STREAM_NAME, workerId);
 			worker.run();
