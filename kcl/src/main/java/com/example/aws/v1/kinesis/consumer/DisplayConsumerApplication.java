@@ -1,4 +1,4 @@
-package com.example.aws.kinesis.consumer;
+package com.example.aws.v1.kinesis.consumer;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -11,16 +11,13 @@ import com.amazonaws.services.kinesis.clientlibrary.lib.worker.KinesisClientLibC
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.Worker;
 import com.amazonaws.services.kinesis.metrics.impl.NullMetricsFactory;
 import com.amazonaws.services.kinesis.metrics.interfaces.IMetricsFactory;
-import com.example.aws.Util;
+import com.example.aws.util.Config;
+import com.example.aws.v1.kinesis.Util;
 
 /**
  * Sample consumer application for Amazon Kinesis Streams to display records.
  */
 public final class DisplayConsumerApplication {
-
-	private static final String APPLICATION_NAME = System.getProperty("app.name", "tokyo-stream-1-display-consumer-application");
-	private static final String STREAM_NAME = System.getProperty("stream.name", "tokyo-stream-1");
-	private static final String REGION = System.getProperty("region", "ap-northeast-1");
 
 	// Initial position in the stream when the application starts up for the first time.
 	// Position can be one of LATEST (most recent data) or TRIM_HORIZON (oldest available data)
@@ -38,9 +35,9 @@ public final class DisplayConsumerApplication {
 
 		// Set KCL configuration
 		String workerId = InetAddress.getLocalHost().getCanonicalHostName() + ":" + UUID.randomUUID();
-		KinesisClientLibConfiguration kclConfiguration = new KinesisClientLibConfiguration(APPLICATION_NAME, STREAM_NAME,
+		KinesisClientLibConfiguration kclConfiguration = new KinesisClientLibConfiguration(Config.KCL_APPLICATION_NAME, Config.STREAM_NAME,
 				credentialsProvider, workerId);
-		kclConfiguration.withRegionName(REGION);
+		kclConfiguration.withRegionName(Config.REGION);
 		kclConfiguration.withInitialPositionInStream(INITIAL_POSITION_IN_STREAM);
 
 		// Start workers
@@ -49,7 +46,8 @@ public final class DisplayConsumerApplication {
 		Worker worker = new Worker.Builder().recordProcessorFactory(recordProcessorFactory).config(kclConfiguration)
 				.metricsFactory(metricsFactory).build();
 		try {
-			System.out.printf("Running %s to process stream %s as worker %s...\n", APPLICATION_NAME, STREAM_NAME, workerId);
+			System.out.printf("Running %s to process stream %s as worker %s...\n", Config.KCL_APPLICATION_NAME, Config.STREAM_NAME,
+					workerId);
 			worker.run();
 		} catch (Throwable t) {
 			System.err.println("Caught throwable while processing data.");

@@ -1,4 +1,4 @@
-package com.example.aws;
+package com.example.aws.v1.kinesis;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.auth.AWSCredentialsProvider;

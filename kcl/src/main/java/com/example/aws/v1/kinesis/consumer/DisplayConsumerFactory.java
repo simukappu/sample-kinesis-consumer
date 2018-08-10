@@ -1,4 +1,4 @@
-package com.example.aws.kinesis.consumer;
+package com.example.aws.v1.kinesis.consumer;
 
 import com.amazonaws.services.kinesis.clientlibrary.interfaces.IRecordProcessor;
 import com.amazonaws.services.kinesis.clientlibrary.interfaces.IRecordProcessorFactory;

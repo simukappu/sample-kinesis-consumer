@@ -1,4 +1,4 @@
-package com.example.aws.kinesis.producer;
+package com.example.aws.util;
 
 import java.time.Instant;
 import java.time.ZoneId;

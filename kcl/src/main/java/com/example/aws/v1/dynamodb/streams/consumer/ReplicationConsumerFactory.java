@@ -1,4 +1,4 @@
-package com.example.aws.dynamodb.streams.consumer;
+package com.example.aws.v1.dynamodb.streams.consumer;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;

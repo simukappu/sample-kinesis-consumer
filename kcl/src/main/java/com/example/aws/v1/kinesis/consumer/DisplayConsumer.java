@@ -1,4 +1,4 @@
-package com.example.aws.kinesis.consumer;
+package com.example.aws.v1.kinesis.consumer;
 
 import java.io.IOException;
 import java.nio.charset.CharacterCodingException;

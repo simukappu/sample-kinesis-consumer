@@ -1,4 +1,4 @@
-package com.example.aws.dynamodb.streams.consumer;
+package com.example.aws.v1.dynamodb.streams.consumer;
 
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
@@ -24,7 +24,7 @@ import com.amazonaws.services.kinesis.clientlibrary.interfaces.IRecordProcessor;
 import com.amazonaws.services.kinesis.clientlibrary.interfaces.IRecordProcessorCheckpointer;
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.ShutdownReason;
 import com.amazonaws.services.kinesis.model.Record;
-import com.example.aws.kinesis.consumer.DisplayConsumer;
+import com.example.aws.v1.kinesis.consumer.DisplayConsumer;
 
 /**
  * Replicate records to another table and checkpoints progress.

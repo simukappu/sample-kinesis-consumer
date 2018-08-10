@@ -1,4 +1,4 @@
-package com.example.aws.dynamodb.streams.consumer;
+package com.example.aws.v1.dynamodb.streams.consumer;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -17,18 +17,13 @@ import com.amazonaws.services.kinesis.clientlibrary.interfaces.IRecordProcessorF
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.InitialPositionInStream;
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.KinesisClientLibConfiguration;
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.Worker;
-import com.example.aws.Util;
+import com.example.aws.util.Config;
+import com.example.aws.v1.kinesis.Util;
 
 /**
  * Sample consumer application for Amazon DynamoDB Streams to replicate records.
  */
 public final class ReplicationConsumerApplication {
-
-	private static final String APPLICATION_NAME = System.getProperty("app.name",
-			"access-log-dynamodbstreams-replication-consumer-application");
-	private static final String SRC_TABLE_NAME = System.getProperty("source.table.name", "access-log");
-	private static final String DEST_TABLE_NAME = System.getProperty("dest.table.name", "access-log-replica");
-	private static final String REGION = System.getProperty("region", "ap-northeast-1");
 
 	// Initial position in the stream when the application starts up for the first time.
 	// Position can be one of LATEST (most recent data) or TRIM_HORIZON (oldest available data)
@@ -41,23 +36,23 @@ public final class ReplicationConsumerApplication {
 		// * Original code for DynamoDB Streams * //
 		AmazonDynamoDBStreamsAdapterClient adapterClient = new AmazonDynamoDBStreamsAdapterClient(credentialsProvider,
 				new ClientConfiguration());
-		adapterClient.setRegion(Region.getRegion(Regions.fromName(REGION)));
-		AmazonDynamoDB dynamoDBClient = AmazonDynamoDBClientBuilder.standard().withRegion(REGION).build();
-		String streamArn = dynamoDBClient.describeTable(SRC_TABLE_NAME).getTable().getLatestStreamArn();
+		adapterClient.setRegion(Region.getRegion(Regions.fromName(Config.REGION)));
+		AmazonDynamoDB dynamoDBClient = AmazonDynamoDBClientBuilder.standard().withRegion(Config.REGION).build();
+		String streamArn = dynamoDBClient.describeTable(Config.SRC_TABLE_NAME).getTable().getLatestStreamArn();
 
 		// Set KCL configuration
 		String workerId = InetAddress.getLocalHost().getCanonicalHostName() + ":" + UUID.randomUUID();
-		KinesisClientLibConfiguration kclConfiguration = new KinesisClientLibConfiguration(APPLICATION_NAME, streamArn, credentialsProvider,
-				workerId);
+		KinesisClientLibConfiguration kclConfiguration = new KinesisClientLibConfiguration(Config.DDB_APPLICATION_NAME, streamArn,
+				credentialsProvider, workerId);
 		kclConfiguration.withInitialPositionInStream(INITIAL_POSITION_IN_STREAM);
 
 		// Start workers
-		IRecordProcessorFactory recordProcessorFactory = new ReplicationConsumerFactory(DEST_TABLE_NAME);
-		AmazonCloudWatch cloudWatchClient = AmazonCloudWatchClientBuilder.standard().withRegion(REGION).build();
+		IRecordProcessorFactory recordProcessorFactory = new ReplicationConsumerFactory(Config.DEST_TABLE_NAME);
+		AmazonCloudWatch cloudWatchClient = AmazonCloudWatchClientBuilder.standard().withRegion(Config.REGION).build();
 		@SuppressWarnings("deprecation")
 		Worker worker = new Worker(recordProcessorFactory, kclConfiguration, adapterClient, dynamoDBClient, cloudWatchClient);
 		try {
-			System.out.printf("Running %s to process stream %s as worker %s...\n", APPLICATION_NAME, streamArn, workerId);
+			System.out.printf("Running %s to process stream %s as worker %s...\n", Config.DDB_APPLICATION_NAME, streamArn, workerId);
 			worker.run();
 		} catch (Throwable t) {
 			System.err.println("Caught throwable while processing data.");
