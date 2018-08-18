@@ -13,7 +13,7 @@ public class Config {
 	public static final String DELIVERY_STREAM_NAME = System.getProperty("delivery.stream.name", "tokyo-stream-1");
 
 	// Amazon DynamoDB Streams Configuration
-	public static final String SRC_TABLE_NAME = System.getProperty("source.table.name", "access-log");
+	public static final String SRC_TABLE_NAME = System.getProperty("src.table.name", "access-log");
 	public static final String DEST_TABLE_NAME = System.getProperty("dest.table.name", "access-log-replica");
 	public static final String DDB_APPLICATION_NAME = System.getProperty("kcl.app.name", SRC_TABLE_NAME + "-dynamodbstreams-replication-consumer-application");
 
